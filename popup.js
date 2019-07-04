@@ -7,6 +7,5 @@ chrome.storage.sync.get('color', function(data) {
 });
 
 changeColor.onclick = function(element) {
-    console.log('点击了')
     chrome.extension.sendMessage(  {type: 'clickSaveFile'}, function(response) {  console.log(response); }  );//测试前台掉后台
 };
