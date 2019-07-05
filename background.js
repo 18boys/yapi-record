@@ -1,15 +1,14 @@
-
 'use strict';
+const  defaultConfig = {
+  status: 'recording' ,// stop recording
+};
 
 chrome.runtime.onInstalled.addListener(function () {
 
-  var event = document.createEvent('Event');
+  // 设置默认配置
+  chrome.storage.sync.set(defaultConfig);
 
-  event.initEvent('build', true, true);
-
-  chrome.storage.sync.set({color: '#3aa757'}, function () {
-    console.log('The color is green.');
-  });
+  // 设置点击icon展示操作面板
   chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
     chrome.declarativeContent.onPageChanged.addRules([{
       conditions: [new chrome.declarativeContent.PageStateMatcher({
@@ -20,23 +19,17 @@ chrome.runtime.onInstalled.addListener(function () {
     }]);
   });
 
-
-  // chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-  //   console.log("Received %o from %o, frame", msg, sender.tab, sender.frameId);
-  //   sendResponse("Gotcha!");
-  // });
-
+  // 监听用户操作,执行相应业务逻辑
   chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
-      console.log('request bg', request);
-      if (request.type === 'clickSaveFile') {
 
-        // 给conten发消息
+      if (request.type === 'exportApiPluginMsgFromPopup') {
+
+        // 给content发消息
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-          console.log('tabstabs',tabs)
-          chrome.tabs.sendMessage(tabs[0].id, {type: "saveFile"})
+          chrome.tabs.sendMessage(tabs[0].id, {type: 'exportApiPluginMsgFromBg', cmd: request.cmd});
         });
       }
-      sendResponse("保存成功");
+    sendResponse("bg process finished");
     }
   );
 

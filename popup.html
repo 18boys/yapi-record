@@ -3,14 +3,39 @@
 <head>
     <style>
         button {
-            height: 30px;
-            width: 30px;
+            height: 40px;
+            width: 80px;
             outline: none;
+            margin: 0 20px;
+        }
+        .option-wrap {
+            padding: 20px 40px;
+            background: #eee;
+            display: flex;
+            justify-content: center;
+        }
+        .export-file {
+            background: #3aa757;
+        }
+        .clear {
+            background: #e8453c;
+        }
+        .stop {
+            background: #4688f1;
+        }
+        .start {
+            background: #f9bb2d;
         }
     </style>
 </head>
 <body>
-<button id="changeColor"></button>
+<div id="exportFile" class="option-wrap">
+    <button class="export-file" data-cmd="exportFile">导出文件</button>
+    <button class="clear" data-cmd="clearRecord">清空记录</button>
+    <button class="stop" data-cmd="stopRecord">停止记录</button>
+    <button class="start" data-cmd="startRecord">开始记录</button>
+</div>
+
 <script src="popup.js"></script>
 </body>
 </html>
