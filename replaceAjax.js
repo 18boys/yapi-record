@@ -58,7 +58,12 @@
 
     const cacheRecord = JSON.parse(JSON.stringify(template));
 
+    function validIsValidText(){
+       return this.responseType === '' || this.responseType === 'text';
+    }
+
     function processGetRecord(response) {
+        if(!validIsValidText.call(this)) return;
         let templateObj = JSON.parse(JSON.stringify(getListItemTemplate));
         let urlObj = new URL(this.responseURL);
         templateObj.path = urlObj.pathname;
@@ -83,6 +88,7 @@
 
 
     function processPOSTRecord(response) {
+        if(!validIsValidText.call(this)) return;
         let templateObj = JSON.parse(JSON.stringify(postListItemTemplate));
         let urlObj = new URL(this.responseURL);
         templateObj.path = urlObj.pathname;
@@ -96,6 +102,7 @@
         //     '请求参数': templateObj.req_body_other,
         //     '请求结果': templateObj.res_body,
         // })
+        // console.log('this',this)
     }
 
 
@@ -103,7 +110,6 @@
         if(!isCanRecord) return;
         if (this.readyState !== 4 || this.status !== 200) return;
         if (!this.responseURL || !method) return;
-        // console.log('url',this);
         switch (method) {
             case 'GET' :
                 processGetRecord.call(this, response);
@@ -114,12 +120,6 @@
             default:
                 void 0;
         }
-        // originalResponse = response.target.responseText;
-        // ajaxList.push(this.getAllResponseHeaders());
-        // ajaxList.push(this.requestData);
-        // ajaxList.push(originalResponse);
-        // ajaxList.push(method);
-        // ajaxList.push(url);
     }
 
     function curryFun(originFunc, context) {
@@ -329,27 +329,18 @@
         || typeof window !== "undefined" && window
         || this.content
     ));
-// `self` is undefined in Firefox for Android content script context
-// while `this` is nsIContentFrameMessageManager
-// with an attribute `content` that corresponds to the window
-
-// function outputFile(){
-//     if (!cacheRecord.list.length) return; // 看下为什么会需要两次弹窗,  看起来 两个 origin都发过来origin了
-//     const fileContent = JSON.stringify([cacheRecord]);
-//     var file = new File([fileContent], "yapi-record.json", { type: "text/plain;charset=utf-8" });
-//     saveAs(file);
-// }
-//
-// function clearRecord(){
-//     cacheRecord.list = [];
-// }
 
     const CMD = {
         exportFile() {
+
             if (!cacheRecord.list.length) return alert('没有可以下载的数据'); // 看下为什么会需要两次弹窗,  看起来 两个 origin都发过来origin了
+            if(this.exporting) return;
+            this.exporting = true;
             const fileContent = JSON.stringify([cacheRecord]);
             var file = new File([fileContent], "yapi-record.json", {type: "text/plain;charset=utf-8"});
             saveAs(file);
+            this.clearRecord();
+            this.exporting = false;
         },
         clearRecord() {
             cacheRecord.list = [];
@@ -364,7 +355,6 @@
 
 
     window.addEventListener("message", function (event) {
-        console.log('replaceAjax:', event);
         if (event.source !== window || !event.data || event.data.type !== 'exportApiPluginMsgFromInject' || !event.data.cmd) return;
         if (typeof CMD[event.data.cmd] !== 'function') {
             alert(`${event.data.cmd}不是合法的操作`)

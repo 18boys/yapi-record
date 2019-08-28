@@ -10,6 +10,6 @@ exportFile.onclick = function (e) {
     if (!cmd) return alert('操作无效');
     console.log('cmdcmd', cmd);
     chrome.extension.sendMessage({type: 'exportApiPluginMsgFromPopup', cmd,}, function (response) {
-        console.log(response);
+        // console.log(response);
     }); //测试前台掉后台
 };
